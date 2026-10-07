@@ -1,30 +1,40 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Navigate, Routes, Link } from "react-router";
-import HomePage from "./pages/homePage";
-import MoviePage from "./pages/movieDetailsPage";
-import FavoriteMoviesPage from "./pages/favoriteMoviesPage";
+import React, { useState, useEffect } from "react";
+import PageTemplate from '../components/templateMovieListPage'
+import { getMovies } from "../api/tmdb-api";
 
-const App = () => {
+
+const HomePage = (props) => {
+  const [movies, setMovies] = useState([]);
+  const favorites = movies.filter(m => m.favorite)
+  localStorage.setItem('favorites', JSON.stringify(favorites))
+
+  const addToFavorites = (movieId) => {
+    const updatedMovies = movies.map((m) =>
+      m.id === movieId ? { ...m, favorite: true } : m
+    );
+    setMovies(updatedMovies);
+  };
+
+    useEffect(() => {
+    getMovie(id).then((movie) => {
+      setMovie(movie);
+    });
+  }, [id]);
+
+  useEffect(() => {
+    getMovieImages(id).then((images) => {
+      setImages(images);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   return (
-    <BrowserRouter>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/movies/favorites">Favorites</Link>
-        </li>
-      </ul>
-      <Routes>
-        <Route path="/movies/favorites" element={<FavoriteMoviesPage />} />
-        <Route path="/movies/:id" element={<MoviePage />} />
-        <Route path="/" element={<HomePage />} />
-        <Route path="*" element={ <Navigate to="/" /> } />
-      </Routes>
-    </BrowserRouter>
+    <PageTemplate
+      title='Discover Movies'
+      movies={movies}
+      selectFavorite={addToFavorites}
+    />
   );
 };
-
-const rootElement = createRoot( document.getElementById("root") )
-rootElement.render(<App />);
+export default HomePage;
